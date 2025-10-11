@@ -41,6 +41,8 @@ O layout segue um tema **noturno e vibrante**, com tons roxos e rosas, inspirado
 
 👥 Equipe de Desenvolvimento
 Desenvolvedor |	RM	| Função
+
 Adão Yuri Ferreira Da Silva	RM559223	UI/UX e Navegação
+
 João Vitor Lopes Santana	RM560781	Lógica e Estruturação das Telas
 
