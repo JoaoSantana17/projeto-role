@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import InputField from './components/InputField';
+import InputField from '../components/InputField';
 
 export default function Login() {
   const [email, setEmail] = useState('');
