@@ -1,60 +1,59 @@
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useMemo, useState } from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Perfil() {
   const router = useRouter();
 
-  
-  const [nome, setNome] = useState("João Vitor");
-  const [username, setUsername] = useState("@usuario.role");
-  const [email, setEmail] = useState("joao@email.com");
-  const [telefone, setTelefone] = useState("(11) 99999-9999");
+  const [nome, setNome] = useState<string>("Carregando...");
+  const [username, setUsername] = useState<string>("@usuario.role");
+  const [email, setEmail] = useState<string>("");
 
-  
-  useEffect(() => {
-    const carregarDados = async () => {
-      const nomeSalvo = await AsyncStorage.getItem("userNome");
-      const usernameSalvo = await AsyncStorage.getItem("userUsername");
-      const emailSalvo = await AsyncStorage.getItem("userEmail");
-      const telefoneSalvo = await AsyncStorage.getItem("userTelefone");
+  const carregar = useCallback(async () => {
+    const nomeSalvo = (await AsyncStorage.getItem("userNome")) ?? "";
+    const usernameSalvo = (await AsyncStorage.getItem("userUsername")) ?? "";
+    const emailSalvo = (await AsyncStorage.getItem("userEmail")) ?? "";
 
-      if (nomeSalvo) setNome(nomeSalvo);
-      if (usernameSalvo) setUsername(usernameSalvo);
-      if (emailSalvo) setEmail(emailSalvo);
-      if (telefoneSalvo) setTelefone(telefoneSalvo);
-    };
-
-    carregarDados();
+    setNome(nomeSalvo || "Usuário");
+    setUsername(usernameSalvo || "@usuario.role");
+    setEmail(emailSalvo || "");
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      carregar();
+    }, [carregar])
+  );
+
+  const iniciais = useMemo(() => {
+    const parts = (nome || "").trim().split(" ").filter(Boolean);
+    if (!parts.length) return "U";
+    const a = parts[0]?.[0] ?? "";
+    const b = parts[parts.length - 1]?.[0] ?? "";
+    return (a + (b || "")).toUpperCase();
+  }, [nome]);
+
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}
-    >
+    <ScrollView style={styles.container} contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}>
       <View style={styles.avatarContainer}>
-        <Image source={require("../assets/profile-placeholder.png")} style={styles.avatar} />
+        <View style={styles.avatar}>
+          <Text style={styles.avatarInitials}>{iniciais}</Text>
+        </View>
       </View>
 
       <Text style={styles.name}>{nome}</Text>
       <Text style={styles.username}>{username}</Text>
 
-      
       <View style={styles.infoCard}>
         <View style={styles.infoRow}>
           <Feather name="mail" size={20} color="#d909a4" />
-          <Text style={styles.infoText}>{email}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Feather name="phone" size={20} color="#d909a4" />
-          <Text style={styles.infoText}>{telefone}</Text>
+          <Text style={styles.infoText}>{email || "sem e-mail"}</Text>
         </View>
       </View>
 
-      
       <TouchableOpacity style={styles.actionButton} onPress={() => router.push("./editar-perfil")}>
         <Feather name="edit" size={20} color="#fff" />
         <Text style={styles.actionText}>Editar Perfil</Text>
@@ -72,49 +71,36 @@ export default function Perfil() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#210b34",
-    paddingTop: 40,
-  },
-  avatarContainer: {
-    backgroundColor: "#d909a4",
-    padding: 4,
-    borderRadius: 100,
-    marginBottom: 16,
-  },
+  container: { flex: 1, backgroundColor: "#210b34", paddingTop: 40 },
+
+  avatarContainer: { backgroundColor: "#d909a4", padding: 4, borderRadius: 100, marginBottom: 16 },
   avatar: {
     width: 120,
     height: 120,
     borderRadius: 60,
+    backgroundColor: "#2a0d4f",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 3,
+    borderColor: "#d909a4",
   },
-  name: {
-    color: "#fff",
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  username: {
-    color: "#fff6",
-    fontSize: 16,
-    marginBottom: 24,
-  },
+  avatarInitials: { color: "#fff", fontSize: 40, fontWeight: "800" },
+
+  name: { color: "#fff", fontSize: 24, fontWeight: "bold", marginTop: 8 },
+  username: { color: "#fff6", fontSize: 16, marginBottom: 24 },
+
   infoCard: {
     width: "90%",
     backgroundColor: "#fff1",
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
   },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  infoText: {
-    color: "#fff",
-    marginLeft: 12,
-    fontSize: 16,
-  },
+  infoRow: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
+  infoText: { color: "#fff", marginLeft: 12, fontSize: 16 },
+
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -124,10 +110,5 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 16,
   },
-  actionText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-    marginLeft: 8,
-  },
+  actionText: { color: "#fff", fontWeight: "bold", fontSize: 16, marginLeft: 8 },
 });
