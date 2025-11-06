@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import InputField from "./components/InputField";
+import InputField from "../components/InputField";
 
 export default function Cadastro() {
   const router = useRouter();
